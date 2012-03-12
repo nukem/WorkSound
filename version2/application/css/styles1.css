@@ -1,0 +1,90 @@
+@charset "UTF-8";
+.artist-nav{
+width:929px;
+height:	24px;
+background:url(images/back-nav.jpg) no-repeat;
+margin-bottom:6px;
+padding:6px;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+.artist-nav .left{
+float:left;
+}
+
+.artist-nav .right{
+	float:right;
+}
+.artist-nav .btn{
+display:block;
+	width:58px;
+	
+}
+
+.artist-nav div{
+float:left;
+display:block;
+	width:500px;
+	font-weight:bold;
+	margin-left:10px;
+	line-height:24px;
+	color:#029ac1;
+}
+.artists{
+display:block;
+float:left;	
+	margin-right:8px;
+	margin-bottom:30px;
+}
+.artists ul{
+	display:block;
+	float:left;
+	width:168px;
+	height:281px;
+	background:url(images/back-artist.jpg) no-repeat;
+	padding:7px;
+	margin:0px;
+	list-style:none;
+	color:#fff;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	
+}
+.artists  .title{
+	display:block;
+	float:left;
+width:150px;
+height:27px;
+background:url(images/back-title.png) no-repeat;
+margin-top:7px;
+padding:8px;
+font-weight:bold;
+font-size:13px;
+}
+.artists  .rating{
+	display:block;
+	float:left;
+width:150px;
+height:13px;
+margin-top:3px;
+}
+.artists  .genre{
+	display:block;
+	float:left;
+width:150px;
+height:41px;
+background:url(images/back-genre.png) no-repeat;
+margin-top:7px;
+padding:8px;
+}
+.artists  .location{
+	display:block;
+	float:left;
+width:150px;
+height:16px;
+background:url(images/back-location.png) no-repeat;
+margin-top:7px;
+padding:4px;
+padding-left:8px;
+padding-right:8px;
+}

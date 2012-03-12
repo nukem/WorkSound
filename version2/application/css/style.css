@@ -1,0 +1,53 @@
+@import url("first.css");
+@import url("screen.css");
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight, .ui-widget-header .ui-state-highlight {
+    background: none;
+    border:none;
+}
+
+.floating-message {height:auto!important}
+
+
+.slider a.ui-slider-handle span {
+    color: #7A6245;
+    font-size: 12px;
+    left: -3px;
+    position: absolute;
+    top: 20px;
+}
+
+div.ui-datepicker{
+ font-size:11px;
+}
+
+.ui-widget {
+    font-family: 'Lato',Arial,Helvetica,sans-serif!important;
+    font-size: 14px;
+}
+
+.input-error {
+	border-color:red!important;
+	color:red!important;	
+}
+
+.loading {
+	background:url(../images/ajax-loader.gif) no-repeat 5px center;	
+}
+
+.flash {
+	min-height: 30px!important;
+    padding-bottom: 0!important;
+    padding-top: 10px!important;
+}
+
+#tbl_audio a.link, #tbl_video a.link {
+	max-width:260px;
+	display:inline-block;
+	overflow:hidden;
+	white-space:nowrap;
+}
+
+
+
+@import url("last.css");

@@ -1,0 +1,486 @@
+
+			<h1>Join as an Artist</h1>
+			
+			<div class="step step2">step</div>
+			<div class="line_help"><a href="#">click here for help</a></div>
+
+			<form action="" method="post" class="uniform">
+			<fieldset>
+				<h2>STEP 2/6 - ARTIST SETUP</h2>
+				<div class="form_title">Now, let's hear more about you!</div>
+				<div class="form_block">
+
+					<p>
+						The information you enter here will allow you to play the gigs you want to play. It will form the information that will be displayed on your Soundbooka Profile Page.
+						<strong class="bubble_info">
+							<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+							<strong class="popup"><b>arrow</b><em>Your Profile Page will be visible to visitors to soundbooka.com. Your Soundbooka Profile Page displays performance information and acts as your performance resume.</em></strong>
+						</strong>
+					</p>
+
+
+					<div class="form_row">
+						<div class="form_item">
+							<label>
+								Profile Name <span>*</span>
+								<strong class="bubble_info">
+									<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+									<strong class="popup"><b>arrow</b><em>Your Profile Name is the name you perform under. This name will be displayed on your Profile Page and appear in search results.</em></strong>
+								</strong>
+							</label>
+							<input name="profile_name" type="text" class="input1" id="profile_name"  value="<?php echo set_value('profile_name', @$profile_name); ?>"/>
+						</div>
+						
+						<div class="form_item" style="width:445px;float:right;">
+							<label>Profile Type <span>*</span></label>
+							<div class="options">
+								<?php 
+								$result = mysql_query("select * from artist_type where active=1");
+								while($row=mysql_fetch_array($result)){
+								?>
+								<label>
+									<input type="radio" name="profile_type" class="profile_type" id="apsel_<?php echo $row['artist_id'];?>" value="<?php echo $row['artist_id'];?>" <?php echo set_radio('profile_type', $row['artist_id'], (($row['artist_id']==$profile_type) ? TRUE:FALSE)); ?>/>
+									<strong><?php echo $row['type'];?></strong>
+							  </label>
+								<?php } ?> 
+							</div>
+						</div>
+						<br class="cl" />
+					</div><!--end of form_row-->
+
+				</div><!--end of form_block-->
+				
+				
+				<div class="form_title">
+					Your Pictures <span>*</span>
+					<strong class="bubble_info">
+						<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+						<strong class="popup"><b>arrow</b><em>Soundbooka allows you to upload a maximum of five (5) images to your Soundbooka Profile Page. From these images you're able to select one as your Profile Picture. This will be displayed in the search results. By uploading a file you certify that you have the right to distribute the picture and that it does not violate the Soundbooka <a href="#">User Agreement</a>.</em></strong>
+					</strong>
+				</div>
+				<p>Please select the images you want to upload to your Soundbooka Profile Page.</p>
+				
+				<div class="form_row">
+					<ul class="user_pic_list">
+						<li>
+							<img src="<?=base_url()?>images/default_person.gif" alt="" />
+							<span>Profile Pic</span>
+							<span><a href="#">Remove</a></span>
+						</li>
+						<li>
+							<img src="<?=base_url()?>images/default_person.gif" alt="" />
+							<span><a href="#">Set as profile</a></span>
+							<span><a href="#">Remove</a></span>
+						</li>
+						<li>
+							<img src="<?=base_url()?>images/default_person.gif" alt="" />
+							<span><a href="#">Set as profile</a></span>
+							<span><a href="#">Remove</a></span>
+						</li>
+						<li>
+							<img src="<?=base_url()?>images/default_person.gif" alt="" />
+							<span><a href="#">Set as profile</a></span>
+							<span><a href="#">Remove</a></span>
+						</li>
+						<li>
+							<img src="<?=base_url()?>images/default_person.gif" alt="" />
+							<span><a href="#">Set as profile</a></span>
+							<span><a href="#">Remove</a></span>
+						</li>
+					</ul>
+					
+					<div class="form_item">
+						<label>Upload your pictures <span>*</span></label>
+						<input type="file" />
+						<em>Select an image file on your computer (max 4 MB)</em>
+					</div>
+					<br class="cl" />
+				</div><!--end of form_row-->
+				
+				
+				
+				<div class="shadow_line">line</div>
+				
+				<div class="form_title">
+					Genres <span>*</span>
+					<strong class="bubble_info">
+						<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+						<strong class="popup"><b>arrow</b><em>We cater to every type of preforming artist on Soundbooka. By selecting the genres that best describe your sound we can provide you with the gigs that best match your skill set.</em></strong>
+					</strong>
+				</div>
+				<div class="form_block">
+					<p>Please select the genres that best describe your sound (max 5)</p>
+					<div class="form_row">
+						
+							<?php 
+								$result = mysql_query("select * from genre");
+								$genres = array();
+								while($row=mysql_fetch_array($result)){
+									$genres[$row['artist_type']][] = array('id'=>$row['genre_id'],'genre'=>$row['genre']);
+								}
+								//print_r($genres);die;
+								foreach ($genres as $at=>$gs) {
+									
+								?>
+								<div class="option_col at_<?=$at?>" style="display:none">
+                                	<? if (!isset($genre)) $genre = array(); ?>
+									<? foreach ($gs as $g) {?>
+										<div class="option">
+											<label>
+												<input type="checkbox" class="id_<?=$g['id']?> genre" name="genre[]" id="genre" value="<?=$g['id']?>" <?=(in_array($g['id'],@$genre) ? 'checked="checked"':'')?>/>
+												<strong><?php echo $g['genre'];?></strong>
+											</label>
+										</div>
+                                    <? } ?>
+								<br class="cl" />
+								</div><!--end of option_col-->
+                                <script>if ($('#apsel_<?=$at?>').attr('checked')) $('.at_<?=$at?>').fadeIn()</script>
+								<?php } ?>
+						
+						
+				</div><!--end of form_block-->
+				
+				
+				
+				<div class="shadow_line">line</div>
+				
+				<div id="div_instrument">
+				<div class="form_title">Instruments</div>
+				<div class="form_block">
+					<p>What type of instrument do you play?</p>
+					<div class="form_row" id="add_edit_instruments">
+						<div class="form_item">
+							<label>Please select your instrument <span>*</span></label>
+							<div class="simu_select1">
+								<?=form_dropdown('instrument', $instruments, '', 'id=instrument')?>
+							</div>
+						</div>
+						
+						<div class="form_item">
+							<label>
+								Description
+								<strong class="bubble_info">
+									<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+									<strong class="popup"><b>arrow</b><em>Here you can describe your sound. You might be a guitarist who has a bluesy edge or be a singer with a soulful groove. Include this information in 25 words or less.</em></strong>
+								</strong>
+							</label>
+							<input id="instrument_comment" type="text" class="input1" />
+						</div>
+						
+						<a href="javascript: void(0);" class="btn_add" id="add_instrument">Add</a>
+						<br class="cl" />
+					</div><!--end of form_row-->
+					
+					<div id="instrument_list"></div>
+				</div><!--end of form_block-->
+				</div>
+				
+				<div id="div_equipment">
+				<div class="form_title">Equipment</div>
+				<div class="form_block">
+					<p>Do you supply your own equipment when you perform or do you require it to be supplied?</p>
+					<div class="options">
+						<label>
+							<input name="equipment" type="radio" id="equipment" value="1" checked="checked" <?php echo set_radio('equipment', 1, ((1==$equipment) ? TRUE:FALSE)); ?> />
+							<strong>I perform on my own equipment</strong>
+				    </label>
+						
+						<label>
+							<input name="equipment" type="radio" id="equipment" value="2" <?php echo set_radio('equipment', 2, ((2==$equipment) ? TRUE:FALSE)); ?>/>
+							<strong>I require equipment to perform</strong>
+						</label>
+					</div>
+				</div><!--end of form_block-->
+				
+				<div class="shadow_line">line</div>
+				
+				<div class="form_title">Specialization</div>
+				<div class="form_block">
+					<div class="form_row">
+						<label>Please select</label>
+						<div class="simu_select1">
+							<?=form_dropdown('specializaton', $specializatons, set_value('specializaton',@$specializaton), 'id=specializaton')?>
+						</div>
+						<br class="cl" />
+					</div>
+				</div><!--end of form_block-->
+				
+				
+				<div class="shadow_line">line</div>
+				</div>
+				
+				
+				
+				<div class="form_title">Preferred Gig</div>
+				<div class="form_block">
+					<p>Where do you most like to perform?</p>
+					<div class="form_row">
+						<label>Please select</label>
+						<div class="simu_select1"><?php //print_r($gigs);?>
+							<?=form_dropdown('gig', $gigs, set_value('gig',@$gig), 'id=gig')?>
+						</div>
+						<br class="cl" />
+					</div>
+				</div><!--end of form_block-->
+				
+				<div id="div_equipment">
+				<div class="form_title">
+					Performance Fee
+					<strong class="bubble_info">
+						<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+						<strong class="popup"><b>arrow</b><em>This is how much you charge to perform. Soundbooka will deduct their Fee from this amount. You can select how much you charge per hour or per gig/session. All amounts are in $AUD.</em></strong>
+					</strong>
+				</div>
+				<div class="form_block">
+					<div class="note_box"><span>arrow</span>At no time will your Performance Fee be displayed to the public or bookers.</div>
+					<div class="form_row">
+						<div class="form_item">
+							<label>What is your minimum fee per hour?</label>
+							<div class="slider" id="slider1"></div>
+                            <span id="slider_value1">50</span>
+                            <input type="hidden" name="fee_hour" id="fee_hour" value="<?php echo set_value('fee_hour',@$fee_hour); ?>"/>
+						</div>
+						<div class="form_item">
+							<label>Minimum hours per Gig</label>
+							<div class="simu_select5">
+								<?=form_dropdown('gig_hours', $gigHours, set_value('gig_hours',@$gig_hours), 'id=gig_hours')?>
+							</div>
+						</div>
+						<br class="cl" />
+						
+					</div><!--end of form_row-->
+					Or<br/><br/>
+					<div class="form_row">
+						<div class="form_item">
+							<label>What is your minimum fee per gig/session?</label>
+							<div class="slider" id="slider2"></div>
+                            <span id="slider_value2">50</span>
+                            <input type="hidden" name="fee_gig" id="fee_gig" value="<?php echo set_value('fee_gig',@$fee_gig); ?>"/>
+						</div>
+						<br class="cl" />
+						
+					</div><!--end of form_row-->
+					
+				</div><!--end of form_block-->
+				</div>
+				
+				
+				<div class="shadow_line">line</div>
+				
+				<div class="form_title">Availability</div>
+				<div class="form_block">
+					<div class="form_row">
+						<div class="form_item">
+							<label>When are you available to perform? <span>*</span></label>
+							<div class="options">
+								<label>
+									<input name="available_mon" type="checkbox" id="available_mon" value="1" <?php echo set_checkbox('available_mon', '1', ((1==$available_mon) ? TRUE:FALSE)); ?> />
+									<strong>mon</strong>
+						    </label>
+								
+								<label>
+									<input name="available_tue" type="checkbox" id="available_tue" value="1" <?php echo set_checkbox('available_tue', '1', ((1==$available_tue) ? TRUE:FALSE)); ?> />
+									<strong>tue</strong>
+						    </label>
+								
+								<label>
+									<input name="available_wed" type="checkbox" id="available_wed" value="1" <?php echo set_checkbox('available_wed', '1', ((1==$available_wed) ? TRUE:FALSE)); ?> />
+									<strong>wed</strong>
+						    </label>
+								
+								<label>
+									<input name="available_thu" type="checkbox" id="available_thu" value="1" <?php echo set_checkbox('available_thu', '1', ((1==$available_thu) ? TRUE:FALSE)); ?> />
+									<strong>thu</strong>
+						    </label>
+								
+								<label>
+									<input name="available_fri" type="checkbox" id="available_fri" value="1" <?php echo set_checkbox('available_fri', '1', ((1==$available_fri) ? TRUE:FALSE)); ?> />
+									<strong>fri</strong>
+						    </label>
+								
+								<label>
+									<input name="available_sat" type="checkbox" id="available_sat" value="1" <?php echo set_checkbox('available_sat', '1', ((1==$available_sat) ? TRUE:FALSE)); ?> />
+									<strong>sat</strong>
+						    </label>
+								
+								<label>
+									<input name="available_sun" type="checkbox" id="available_sun" value="1" <?php echo set_checkbox('available_sun', '1', ((1==$available_sun) ? TRUE:FALSE)); ?> />
+									<strong>sun</strong>
+								</label>
+								
+							</div>
+						</div><!--end of form_item-->
+						<br class="cl" />
+					</div><!--end of form_row-->
+				</div><!--end of form_block-->
+				
+				
+				<div class="form_title">
+					Management
+					<strong class="bubble_info">
+						<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+						<strong class="popup"><b>arrow</b><em>If you are a performer that has a manager or is represented by a management agency please fill out the required fields. Soundbooka will include your management on all communications.</em></strong>
+					</strong>
+				</div>
+				<div class="form_block">
+					<p>Do you have a manager?</p>
+					<div class="form_row">
+						<div class="form_item">
+							<label>Please Select <span>*</span></label>
+							<div class="options">
+								<label>
+									<input name="has_manager" id="has_manager1" type="radio" value="1" <?php echo set_radio('has_manager', '1'); ?> />
+									<strong>yes</strong>
+						    </label>
+								
+								<label>
+									<input name="has_manager" id="has_manager2" type="radio" value="0" <?php echo set_radio('has_manager', '0', TRUE); ?>/>
+									<strong>no</strong>
+								</label>
+							</div>
+						</div><!--end of form_item-->
+						
+						<div class="form_item">
+							<label>Manager Name <span>*</span></label>
+							<input name="manager_name" type="text" class="input6" id="manager_name" value="<?php echo set_value('manager_name', @$manager_name); ?>" />
+						</div><!--end of form_item-->
+						
+						<div class="form_item">
+							<label>Manager Email <span>*</span></label>
+							<input name="manager_email" type="text" class="input6" id="manager_email" value="<?php echo set_value('manager_email', @$manager_email); ?>" />
+						</div><!--end of form_item-->
+						
+						<div class="form_item">
+							<label>Manager contact number <span>*</span></label>
+							<input name="manager_phone" type="text" class="input6" id="manager_phone" value="<?php echo set_value('manager_phone', @$manager_phone); ?>" />
+						</div><!--end of form_item-->
+						
+						<br class="cl" />
+					</div><!--end of form_row-->
+				</div><!--end of form_block-->
+				
+				
+				<div class="form_title">
+					Do you have insurance?
+					<strong class="bubble_info">
+						<img src="<?=base_url()?>images/question_mark_icon.png" style = "width:15px;height:15px;" alt="" class="img_ask" />
+						<strong class="popup"><b>arrow</b><em>Unless waived by the Booker, you will be required to have your own current public liability insurance for each Gig. If you do not have public liability insurance, you will not be able to perform at venues that require you to have public liability insurance. Soudbooka requires Artists to provide details of public liability insurance to be able to accept Gigs requiring public liability insurance.</em></strong>
+					</strong>
+				</div>
+				<div class="form_block">
+					<div class="form_row">
+						<div class="form_item">
+							<label>Please Select <span>*</span></label>
+							<div class="options">
+								<label>
+									<input name="has_insurance" id="has_insurance" type="radio" value="1" <?php echo set_radio('has_insurance', '1'); ?> />
+									<strong>yes</strong>
+							  </label>
+								
+								<label>
+									<input name="has_insurance" id="has_insurance1" type="radio" value="0" <?php echo set_radio('has_insurance', '0', TRUE); ?> />
+									<strong>no</strong>
+								</label>
+							</div>
+						</div><!--end of form_item-->
+						
+						<br class="cl" />
+					</div><!--end of form_row-->
+				</div><!--end of form_block-->
+				
+				<div class="shadow_line">line</div>
+				
+				<input type="submit" value="Save &amp; Continue" class="input_continue" />
+				
+				<a href="<?=base_url()?>artist/step1/<?=$id?>" class="btn_back2">Back</a>
+				
+				<br class="cl" />
+
+			</fieldset>
+			</form>
+			
+			<br class="cl" />
+<script>
+function listInstruments(){
+		$.ajax({
+		  type: "GET",
+		  url: "<?=base_url()?>ajax/Instruments/<?php echo $id;?>",
+		  async: false
+		}).done(function( msg ) {
+		  $('#instrument_list').html(msg);
+		});
+	}
+listInstruments();
+function addInstruments(){
+	$.ajax({
+		  type: "POST",
+		  url: "<?=base_url()?>ajax/addInstruments/<?php echo $id;?>/"+ $('#instrument').val() +"/"+$('#instrument_comment').val()
+		}).done(function( msg ) {
+		  $('#instrument_list').html(msg);
+	});
+}
+function editInstruments(id,instrument,comment){
+	$.ajax({
+		  type: "POST",
+		  url: "<?=base_url()?>ajax/editInstruments/<?php echo $id;?>/"+id+"/"+instrument+"/"+comment
+		}).done(function( msg ) {
+		  $('#add_edit_instruments').html(msg);
+		  listInstruments();
+		});
+}
+function deleteInstruments(id){
+	$.ajax({
+		  type: "POST",
+		  url: "<?=base_url()?>ajax/deleteInstruments/<?php echo $id;?>/"+id
+		}).done(function( msg ) {
+		  $('#instrument_list').html(msg);
+	});
+}
+$(function() {
+	$( "#slider1" ).slider({
+		range: "min",
+		value: 400,
+		min: 50,
+		max: 2000,
+		slide: function( event, ui ) {
+			$( "#slider_value1" ).html( ui.value);
+			$( "#fee_hour" ).val( ui.value );
+		},
+		change: function( event, ui ) {
+			$( "#slider_value1" ).html( ui.value );
+			$( "#fee_hour" ).val( ui.value );
+		}
+	});
+	
+	
+	$( "#slider2" ).slider({
+		range: "min",
+		value: 400,
+		min: 50,
+		max: 2000,
+		slide: function( event, ui ) {
+			$( "#slider_value2" ).html( ui.value );
+			$( "#fee_gig" ).val( ui.value );
+		},
+		change: function( event, ui ) {
+			$( "#slider_value2" ).html( ui.value );
+			$( "#fee_gig" ).val( ui.value );
+		}
+	});
+	
+	$( "#slider1" ).slider('value','<?php echo set_value('fee_hour',@$fee_hour); ?>');
+	$( "#slider2" ).slider('value','<?php echo set_value('fee_gig',@$fee_gig); ?>');
+		
+		$('.profile_type').click(function() {
+			$('.option_col').hide();
+			$('input.genre').attr('checked',false);
+			$.uniform.update('input.genre');
+			$('.at_'+$(this).val()).fadeIn();
+		})
+	
+	$('#add_instrument').click(function() {
+		addInstruments();
+	});
+	
+});
+</script>	

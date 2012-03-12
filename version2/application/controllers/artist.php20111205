@@ -1,0 +1,656 @@
+<?php
+
+if (!defined('BASEPATH'))
+  exit('No direct script access allowed');
+
+/**
+ * Soundbooka
+ * 
+ * @author     Chathura Payagala <chathupayagala@gmail.com>
+ */
+class Artist extends MY_Controller {
+
+  function Artist() {
+    parent::__construct();
+    $this->load->model('mUser');
+    $this->load->model('mArtist');
+	$this->load->model('mArticle');
+  }
+
+  public function index() {
+    $data = array(
+        'title' => '',
+        'main_content' => 'home'
+    );
+    $this->load->view('template', $data);
+  }
+
+  public function registered($id) {
+    //send_email('chathupayagala@gmail.com', 'subject', 'message');
+    $data = array(
+        'title' => 'Registration Complete',
+        'main_content' => 'artist/registered',
+		'id' => $id
+    );
+    $this->load->view('template', $data);
+  }
+  
+  public function re_send($id) {
+	$this->_sendEmail($id);
+	die('OK');  
+  }
+  
+  // Date: 30 Nov ' 11 EM code starts here
+  public function savevent()
+  {
+  	$this->form_validation->set_rules('event_title', 'Event Title', 'required');
+    $this->form_validation->set_rules('event_loc', 'Event Location', 'required');
+    $this->form_validation->set_rules('event_desc', 'Event Description', 'required');
+    $this->form_validation->set_rules('event_start_date', 'Start Date', 'required');
+    $this->form_validation->set_rules('event_to_date', 'End Date', 'required');
+   // $this->form_validation->set_rules('event_occ', 'Event Occurence', 'required|is_numeric');
+    
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+    if ($this->form_validation->run() == FALSE) {
+      $data = array(
+          'title' => 'Edit Events',
+          'main_content' => 'artist/saveevent'
+      );
+     $data['form_errors'] = $this->form_validation->error_array();
+     $this->load->view('template', $data);
+      
+    } else {
+    			$id = $_REQUEST['id'];
+    	  	$form_data = array(
+          'id' => $id,
+          'event_title' => set_value('event_title'),
+          'event_loc' => set_value('event_loc'),
+          'event_desc' => set_value('event_desc'),
+          'start_date' => set_value('event_start_date'),
+          'to_date' => set_value('event_to_date'),
+          'event_occ' => set_value('event_occ'),
+          'repeater' => set_value('repeater'),
+          'radio_daily' => set_value('radio_daily'),
+          'daily' => set_value('daily'),
+          'select_weekly' => set_value('select_weekly'),
+          'weekly' => set_value('weekly'),
+          'select_monthly' => set_value('select_monthly'),
+          'select_yearly' => set_value('select_yearly'),
+          'selectmonth' => set_value('selectmonth')
+          );
+		
+      $aid = $this->mArtist->savevent($form_data);
+       $this->session->set_flashdata('message', 'You have successfully saved event.');
+      	?>
+      	<script type="text/javascript" language="javascript">
+      		if (window.opener && !window.opener.closed) {
+					window.opener.location.reload();
+					} 
+      		window.close();
+      	</script>
+      	<?php //redirect('/artist/registered/'.$aid);
+    }  
+	  
+  }
+  // EM Code ends here
+
+  public function register() {
+   
+//
+    //$this->form_validation->set_rules('type', 'Account Type', 'required|trim');
+   	$this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|unique[user.email.0]');
+    $this->form_validation->set_rules('email_confirm', 'Email Confirm', 'required|trim|valid_email');
+    $this->form_validation->set_rules('password', 'Password', 'required|trim');
+    $this->form_validation->set_rules('password_confirm', 'Password Confirm', 'required|trim');
+    $this->form_validation->set_rules('secret_question', 'Secret Question', 'required');
+    $this->form_validation->set_rules('secret_answer', 'Secret Answer', 'required');
+    $this->form_validation->set_rules('dob_day', 'Birth Day', 'required');
+    $this->form_validation->set_rules('dob_month', 'Birth Month', 'required');
+    $this->form_validation->set_rules('dob_year', 'Birth Year', 'required');
+    $this->form_validation->set_rules('age', 'Age verification', 'required|is_numeric');
+    $this->form_validation->set_rules('agree', 'Agree Terms', 'required|is_numeric');
+
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+
+    if ($this->form_validation->run() == FALSE) {
+      $data = array(
+          'title' => 'Register',
+          'main_content' => 'artist/register'
+      );
+      $data['form_errors'] = $this->form_validation->error_array();
+      $data['types'] = $this->mUtil->getCodes('Account Types');
+	  $questions = $this->mUtil->getCodes('Secret Questions');
+      foreach ($questions as $s) {
+		$data['questions'][$s] = $s;  
+	  }
+      $this->load->view('template', $data);
+    } else {
+      $form_data = array(
+          'id' => 0,
+          'email' => set_value('email'),
+          'password' => set_value('password'),
+          'type' => set_value('type'),
+          'secret_question' => set_value('secret_question'),
+          'secret_answer' => set_value('secret_answer'),
+          'newsletter' => set_value('newsletter'),
+          'dob' => set_value('dob_year') . "-" . set_value('dob_month') . "-" . set_value('dob_day')
+		);
+      if ($newID = $this->mUser->save($form_data)) {
+       $aid = $this->mArtist->save(array('id' => 0, 'user_id' => $newID),$_POST);
+       $this->session->set_flashdata('message', 'You can now complete your profile.');
+     	$this->_sendEmail($aid);
+	    redirect('/artist/registered/'.$aid);
+      
+	  } else {
+        $this->session->set_flashdata('error', 'An error occurred saving your information. Please try again later');
+
+        $data = array(
+            'title' => 'Register',
+            'main_content' => 'artist/register'
+        );
+        $this->load->view('template', $data);
+      }
+    }
+  }
+
+  function _sendEmail($id) {
+    $artist = $this->mArtist->get($id);
+    $user = $this->mUser->get($artist->user_id);
+	$article = $this->mArticle->getEmailTemplate(194220);
+	
+	  $this->load->library('email');
+
+	  $this->email->from($article->email_from);
+	  $this->email->to($user->email);
+	  $this->email->cc($article->cc);
+	  $this->email->bcc($article->bcc);
+	  $this->email->subject($article->subject);
+    
+	$profile_link = "<a href='" . base_url() . "artist/step1/{$id}'>Create my profile</a>";
+	
+	$html = '<html>
+<head>
+</head>
+<body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top"><table width="639" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td><img src="http://www.soundbooka.com/version1/images/email_head.jpg" width="639" height="143" /></td>
+      </tr>
+      <tr>
+        <td style="padding-top:30px; padding-left:20px;padding-bottom:20px;padding-right:10px;color: #332B28; font-family:Lato,Arial,Helvetica,sans-serif; font-size: 14px;">' . str_replace('%Create my profile%',$profile_link,$article->content) . '</td>
+      </tr>
+      <tr>
+        <td><img src="http://www.soundbooka.com/version1/images/email_footer.jpg" width="639" height="83" border="0" usemap="#Map" /></td>
+      </tr>
+    </table></td>
+  </tr>
+</table>
+
+<map name="Map" id="Map">
+  <area shape="rect" coords="9,4,28,24" href="http://www.facebook.com/soundbooka" target="_blank" />
+  <area shape="rect" coords="30,4,51,25" href="http://www.twitter.com/soundbooka" target="_blank" />
+  <area shape="rect" coords="4,30,636,78" href="http://www.soundbooka.com/version1/" />
+</map>
+</body>
+</html>';
+	
+    $body = $html ;
+	
+    $this->email->message($body);
+    //$this->email->send();
+
+    send_email($user->email, $article->subject, $body);
+
+    return;
+  }
+
+  public function step1($id=0) {
+    if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+    $this->form_validation->set_rules('first_name', 'First Name', 'required|trim');
+    $this->form_validation->set_rules('last_name', 'Last Name', 'required|trim');
+    $this->form_validation->set_rules('gender', 'Gender', 'required|trim');
+    $this->form_validation->set_rules('address', 'Address', 'required|trim');
+    $this->form_validation->set_rules('suburb', 'Suburb', 'required|trim');
+    $this->form_validation->set_rules('state', 'State', 'required|trim');
+    $this->form_validation->set_rules('country', 'Country', 'required|trim');
+    $this->form_validation->set_rules('postcode', 'Postcode', 'required');
+    $this->form_validation->set_rules('phone_code', 'Phone Code', '');
+    $this->form_validation->set_rules('phone_number', 'Phone Number', 'required');
+    $this->form_validation->set_rules('phone_alternate', 'Alternate Phone', '');
+
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+
+    if ($this->form_validation->run() == FALSE) {
+      $data = array(
+          'title' => 'Create Profile Step 1',
+          'main_content' => 'artist/step1'
+      );
+      $data['form_errors'] = $this->form_validation->error_array();
+      $data = array_merge($data, (array) $this->mArtist->get($id));
+	  if (empty($data['id'])) {
+		  $this->session->set_flashdata('error', 'Profile does not exist - please try again.');
+		  redirect('/artist/register');
+	  }
+
+      $data['countries'] = $this->mUtil->getCountryList();
+      $data['states'] = $this->mUtil->getStateList(set_value('country', $data['country']));
+      $data['genders'] = $this->mUtil->getCodes('gender');
+
+      //print_r($data);die;
+      $this->load->view('template', $data);
+    } else {
+      $form_data = array(
+          'id' => $id,
+          'first_name' => set_value('first_name'),
+          'last_name' => set_value('last_name'),
+          'gender' => set_value('gender'),
+          'address' => $this->input->post('address'),
+          'suburb' => set_value('suburb'),
+          'state' => set_value('state'),
+          'country' => set_value('country'),
+          'postcode' => set_value('postcode'),
+          'phone_code' => set_value('phone_code'),
+          'phone_number' => set_value('phone_number'),
+          'phone_alternate' => set_value('phone_alternate')
+      );
+
+      if ($newID = $this->mArtist->save($form_data)) {
+        //$this->session->set_flashdata('message', 'You can now complete your profile.');
+        redirect('/artist/step2/' . $newID);
+      } else {
+        $this->session->set_flashdata('error', 'An error occurred saving your information. Please try again later');
+
+        $data = array(
+            'title' => 'Create Profile Step 1',
+            'main_content' => 'artist/step1'
+        );
+        $this->load->view('template', $data);
+      }
+    }
+  }
+
+  public function step2($id=0) {
+    //print_r($_POST);die;
+    if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+    $this->form_validation->set_rules('profile_name', 'Profile Name', 'required|trim');
+    $this->form_validation->set_rules('profile_type', 'Profile Type', 'required|trim');
+	//$this->form_validation->set_rules('specialization', 'specialization', '');
+	//$this->form_validation->set_rules('preferred_medium', 'preferred_medium', '');
+	$this->form_validation->set_rules('dj_combo', 'dj_combo', '');
+	$this->form_validation->set_rules('no_of_members', 'No of Members ', 'integer');
+	
+    $this->form_validation->set_rules('genre', 'genre', '');
+    $this->form_validation->set_rules('equipment', 'equipment', '');
+
+    $this->form_validation->set_rules('fee_hour', 'fee_hour', '');
+    $this->form_validation->set_rules('fee_gig', 'fee_gig', '');
+    $this->form_validation->set_rules('gig_hours', 'Performance time ', 'numeric');
+
+    $this->form_validation->set_rules('travel_city', 'travel_city', '');
+    $this->form_validation->set_rules('travel_state', 'travel_state', '');
+    $this->form_validation->set_rules('travel_interstate', 'travel_interstate', '');
+    $this->form_validation->set_rules('travel_international', 'travel_international', '');
+
+    $this->form_validation->set_rules('has_manager', 'Manager', 'trim');
+    if ($this->input->post('has_manager') == 1) {
+      $this->form_validation->set_rules('manager_name', 'Manager Name', 'required|trim');
+      $this->form_validation->set_rules('manager_email', 'Manager Email', 'required|trim');
+      $this->form_validation->set_rules('manager_phone', 'Manager Phone', 'required|trim');
+    }
+    $this->form_validation->set_rules('has_insurance', 'Insurance', 'required|trim');
+
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+
+    if (isset($_POST) && is_array($_POST) && count($_POST)) {
+      $myErrors = array();
+
+      if (!isset($_POST['genre']) && ($this->input->post('profile_type') !=  10)) {
+        $myErrors[] = 'Select at least one genre';
+      }
+
+      //if (!isset($_POST['available_mon']) && !isset($_POST['available_tue']) && !isset($_POST['available_wed']) && !isset($_POST['available_thu']) && !isset($_POST['available_fri']) && !isset($_POST['available_sat']) && !isset($_POST['available_sun'])) {
+        //$myErrors[] = 'Select your availability';
+      //}
+
+      foreach ($myErrors as $k => $me) {
+        $this->form_validation->set_error('custom_' . $k, $me);
+      }
+	  
+	  $_POST['specialization'] = @implode(",",$_POST['specialization_arr']);
+	  $_POST['preferred_medium'] = @implode(",",$_POST['preferred_medium_arr']);
+	  $_POST['needed_equipment'] = @implode(",",$_POST['needed_equipment_arr']);
+    }
+
+    if ($this->form_validation->run() == FALSE || count($myErrors)) {
+      $data = array(
+          'title' => 'Create Profile Step 2',
+          'main_content' => 'artist/step2'
+      );
+      $data['form_errors'] = $this->form_validation->error_array();
+      $data = array_merge($data, (array) $this->mArtist->get($id));
+	  if (empty($data['id'])) {
+		  $this->session->set_flashdata('error', 'Profile does not exist - please try again.');
+		  redirect('/artist/register');
+	  }
+	  
+	  $data['types'] = $this->mUtil->getProfileTypeList();
+
+	  $data['categories'] = $this->mUtil->getInstrumentCategoryList();
+      $data['instruments'] = $this->mUtil->getInstrumentList();
+
+	  $data['specializations'] = $this->mUtil->getCodes('Specialization'); 
+      $data['gigs'] = $this->mUtil->getCodes('gigs');
+      $data['gigHours'] = $this->mUtil->getCodes('gig minimum hours');
+	  $data['mediums'] = $this->mUtil->getCodes('Preferred Medium');
+	  $data['equipments'] = $this->mUtil->getCodes('Preferred Equipments');
+	  
+	  //print_r($data);die;
+
+      if (isset($_POST) && is_array($_POST) && count($_POST)) {
+        $data['genre'] = (array) @$_POST['genre'];
+      } else {
+        $data['genre'] = array($data['genre1'], $data['genre2'], $data['genre3'], $data['genre4'], $data['genre5']);
+      }
+	  
+	  if (isset($_POST) && is_array($_POST) && count($_POST)) {
+        $data['specialization'] = (array) @$_POST['specialization_arr'];
+		$data['preferred_medium'] = (array) @$_POST['preferred_medium_arr'];
+		$data['needed_equipment'] = (array) @$_POST['needed_equipment_arr'];
+      } else {
+        $data['specialization'] = explode(",",$data['specialization']);
+		$data['preferred_medium'] = explode(",",$data['preferred_medium']);
+		$data['needed_equipment'] = explode(",",$data['needed_equipment']);
+      }
+
+      $this->load->view('template', $data);
+    } else {
+      $form_data = array(
+          'id' => $id,
+          'profile_name' => set_value('profile_name'),
+          'profile_type' => set_value('profile_type'),
+          'genre1' => @$_POST['genre'][0],
+          'genre2' => @$_POST['genre'][1],
+          'genre3' => @$_POST['genre'][2],
+          'genre4' => @$_POST['genre'][3],
+          'genre5' => @$_POST['genre'][4],
+          'equipment' => $this->input->post('equipment'),
+          'fee_hour' => set_value('fee_hour'),
+          'fee_gig' => set_value('fee_gig'),
+          'gig_hours' => set_value('gig_hours'),
+          'travel_city' => set_value('travel_city'),
+          'travel_state' => set_value('travel_state'),
+          'travel_interstate' => set_value('travel_interstate'),
+          'travel_international' => set_value('travel_international'),
+          'has_manager' => set_value('has_manager'),
+          'manager_name' => set_value('manager_name'),
+          'manager_email' => set_value('manager_email'),
+          'manager_phone' => set_value('manager_phone'),
+          'has_insurance' => set_value('has_insurance'),
+		  'specialization' => @implode(",",$_POST['specialization_arr']),
+		  'dj_combo' => set_value('dj_combo'),
+		  'preferred_medium' => @implode(",",$_POST['preferred_medium_arr']),
+		  'no_of_members' => set_value('no_of_members'),
+		  'needed_equipment' => @implode(",",$_POST['needed_equipment_arr'])
+      );
+
+      if ($newID = $this->mArtist->save($form_data)) {
+        //$this->session->set_flashdata('message', 'You can now complete your profile.');
+		//$this->_doUpload($newID);
+		
+		$this->mArtist->saveGigs($newID, @$_POST['gigs_arr']);
+		$this->mArtist->saveAvailability($newID, @$_POST['availability']);
+		
+		if ($this->input->post('save')) {
+        	redirect('/artist/step3/' . $newID);
+		} else {
+			redirect('/artist/step1/' . $newID);
+		}
+      } else {
+        $this->session->set_flashdata('error', 'An error occurred saving your information. Please try again later');
+
+        $data = array(
+            'title' => 'Create Profile Step 2',
+            'main_content' => 'artist/step2'
+        );
+        $this->load->view('template', $data);
+      }
+    }
+  }
+
+  public function step3($id=0) {
+	if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+	
+	$this->form_validation->set_rules('plot', 'plot', '');
+	
+	if ($this->input->post('isPost') == 1) {
+		$form_data = array(
+	  	  'id' => $id,
+          'plot' => $_POST['plot']
+		);
+      $this->mArtist->save($form_data);
+	if ($this->input->post('save')) {
+        	redirect('/artist/step4/' . $id);
+		} else {
+			redirect('/artist/step2/' . $id);
+		}
+	}
+	
+	
+	  $data = array(
+          'title' => 'Create Profile Step 3',
+          'main_content' => 'artist/step3'
+      );
+
+	  $data = array_merge($data, (array) $this->mArtist->get($id));
+	  if (empty($data['id'])) {
+		  $this->session->set_flashdata('error', 'Profile does not exist - please try again.');
+		  redirect('/artist/register');
+	  }
+	  //print_r($data);die;
+      $this->load->view('template', $data);
+  }
+
+  public function step4($id=0) {
+	if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+	$this->form_validation->set_rules('info1', 'info1', '');
+    $this->form_validation->set_rules('info2', 'info2', '');
+    $this->form_validation->set_rules('info3', 'info3', '');
+    $this->form_validation->set_rules('info4', 'info4', '');
+	$this->form_validation->set_rules('facebook', 'facebook', '');
+	$this->form_validation->set_rules('twitter', 'twitter', '');
+
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+
+    if ($this->form_validation->run() == FALSE) {
+      $data = array(
+          'title' => 'Create Profile Step 4',
+          'main_content' => 'artist/step4'
+      );
+      $data['form_errors'] = $this->form_validation->error_array();
+	  $data = array_merge($data, (array) $this->mArtist->get($id));
+	  if (empty($data['id'])) {
+		  $this->session->set_flashdata('error', 'Profile does not exist - please try again.');
+		  redirect('/artist/register');
+	  }
+	  //print_r($data);die;
+      $this->load->view('template', $data);
+    } else {
+      $form_data = array(
+	  	  'id' => $id,
+          'info1' => set_value('info1'),
+          'info2' => set_value('info2'),
+          'info3' => set_value('info3'),
+          'info4' => set_value('info4'),
+		  'facebook' => set_value('facebook'),
+		  'twitter' => set_value('twitter'),
+		);
+      if ($newID = $this->mArtist->save($form_data)) {
+	    if ($this->input->post('save')) {
+        	redirect('/artist/step5/' . $newID);
+		} else {
+			redirect('/artist/step3/' . $newID);
+		}
+      
+	  } else {
+        $this->session->set_flashdata('error', 'An error occurred saving your information. Please try again later');
+
+        $data = array(
+          'title' => 'Create Profile Step 4',
+          'main_content' => 'artist/step4'
+        );
+        $this->load->view('template', $data);
+      }
+    }
+  }
+
+  public function step5($id=0) {
+   if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+   $this->form_validation->set_rules('payment_method', 'Payment Method', 'required');
+   
+   if ($this->input->post('payment_method') == 1) {
+    $this->form_validation->set_rules('paypal_email', 'Paypal Email', 'required|valid_email');
+   } else {
+	   $this->form_validation->set_rules('paypal_email', 'Paypal Email', '');
+   }
+    $this->form_validation->set_rules('abn', 'ABN', 'required');
+    $this->form_validation->set_rules('business_name', 'Business Name', 'required');
+	$this->form_validation->set_rules('business_address', 'Business Address', '');
+	$this->form_validation->set_rules('has_gst', 'GST', 'required');
+	
+
+
+    $this->form_validation->set_error_delimiters('<div class="error">', '</div>');
+
+    if ($this->form_validation->run() == FALSE) {
+      $data = array(
+          'title' => 'Create Profile Step 5',
+          'main_content' => 'artist/step5'
+      );
+      $data['form_errors'] = $this->form_validation->error_array();
+	  $data = array_merge($data, (array) $this->mArtist->get($id));
+	  if (empty($data['id'])) {
+		  $this->session->set_flashdata('error', 'Profile does not exist - please try again.');
+		  redirect('/artist/register');
+	  }
+      $this->load->view('template', $data);
+    } else {
+      $form_data = array(
+	  	  'id' => $id,
+          'payment_method' => set_value('payment_method'),
+          'paypal_email' => set_value('paypal_email'),
+          'abn' => set_value('abn'),
+          'business_name' => set_value('business_name'),
+		  'business_address' => set_value('business_address'),
+		  'has_gst' => set_value('has_gst'),
+		);
+      if ($newID = $this->mArtist->save($form_data)) {
+	    if ($this->input->post('save')) {
+        	redirect('/artist/step6/' . $newID);
+		} else {
+			redirect('/artist/step4/' . $newID);
+		}
+      
+	  } else {
+        $this->session->set_flashdata('error', 'An error occurred saving your information. Please try again later');
+
+        $data = array(
+          'title' => 'Create Profile Step 5',
+          'main_content' => 'artist/step5'
+        );
+        $this->load->view('template', $data);
+      }
+    }
+  }
+
+  public function step6($id=0) {
+	if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+    $data = array(
+        'title' => '',
+        'main_content' => 'artist/step6',
+		'id' => $id
+    );
+    $this->load->view('template', $data);
+  }
+  
+  public function create_new($id) {
+	  if (!$id) {
+      $this->session->set_flashdata('error', 'You have to resigter first.');
+      redirect('/artist/register');
+    }
+	
+	$artist = $this->mArtist->get($id);
+	  if (!isset($artist->id) || !$artist->id) {
+		  $this->session->set_flashdata('error', 'You have to resigter first.');
+		  redirect('/artist/register');
+	  }
+	  
+	$ins['id'] = 0;
+	$ins['user_id'] = $artist->user_id ;
+	$ins['first_name'] = $artist->first_name ;
+	$ins['last_name'] = $artist->last_name ;
+	$ins['address'] = $artist->address ;
+	$ins['suburb'] = $artist->suburb ;
+	$ins['state'] = $artist->state ;
+	$ins['country'] = $artist->country ;
+	$ins['postcode'] = $artist->postcode ;
+	$ins['phone_code'] = $artist->phone_code ;
+	$ins['phone_number'] = $artist->phone_number ;
+	$ins['phone_alternate'] = $artist->phone_alternate ;
+	$ins['gender'] = $artist->gender ;
+	  
+	$aid = $this->mArtist->save($ins);
+	redirect('/artist/step1/'.$aid);
+  }
+  
+  private function _doUpload($id) {
+	  return; //ajaxuploader implemented
+	  
+	  if ($_FILES['userfile']['error'] != 0) return;
+	  
+		$config['overwrite'] = TRUE;
+		$config['allowed_types'] = 'jpg|jpeg|gif|png';
+		$config['max_size'] = 2000;
+		$config['upload_path'] = realpath(APPPATH . '../wpdata/images');
+		
+		$ins['parent'] = $id;
+		$ins['title'] = '';
+		$ins['online'] = 1;
+		$ins['position'] = 10;
+		$this->db->insert('wp_image_gallery', $ins);
+		$newId = $this->db->insert_id();
+		
+		$config['file_name'] = $newId . ".jpg";
+
+		$this->load->library('upload', $config);
+		if ($this->upload->do_upload()) {
+			$idata = $this->upload->data();
+			$this->db->set('title', $idata['raw_name']);
+			$this->db->where('id', $newId);
+			$this->db->update('wp_image_gallery');
+		} else {
+			$this->db->where('id', $newId);
+			$this->db->delete('wp_image_gallery');
+		}
+  }
+
+}

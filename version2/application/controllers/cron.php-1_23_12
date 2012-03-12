@@ -1,0 +1,23 @@
+<?php
+if (!defined('BASEPATH'))
+  exit('No direct script access allowed');
+class Cron extends MY_Controller {
+
+	function Cron() {
+		parent::__construct();
+		$this->load->model('mUser');
+		$this->load->model('mArtist');
+		$this->load->model('mUtil');
+	}
+
+	public function index() {
+		die('-1');
+	}
+	function booka_gig(){
+		$sql="SELECT * FROM artist_gig_map agm, manage_gigs mg WHERE agm.gig_id=mg.gig_id ORDER BY mg.booka_id ASC";
+		$q=$this->db->query($sql);
+		$r=$q->result_array();
+		echo '<pre>';
+		print_r($r);
+	}  
+}

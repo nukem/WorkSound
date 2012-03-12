@@ -1,0 +1,98 @@
+<?php require ("tpl/inc/head.php"); ?>
+<body> 
+<div id="page"> 
+<?php require ("tpl/inc/header.php"); ?> 
+<?php require ("tpl/inc/path.php"); ?> 
+  <div id="content"> 
+	  <div id="left-col"> 
+		  <div id="left-col-border"> 
+<?php if (isset ($errors)) require ("tpl/inc/error.php"); ?> 
+<?php if (isset ($messages)) require ("tpl/inc/message.php"); ?> 
+<?php if (isset ($_SESSION['epClipboard'])) require ("tpl/inc/clipboard.php"); ?> 
+<?php require ("tpl/inc/structure.php"); ?> 
+			</div> 
+		</div> 
+		<div id="right-col"> 
+			<h2 class="bar green"><span><?php echo  $record['title'] ?></span></h2> 
+			<form action=".?id=<?php echo  $id ?>" method="post" enctype="multipart/form-data" > 
+        <?php require ("tpl/inc/buttons.php"); ?>
+			
+			<div class="right-col-padding1" > 
+				<a href="javascript: void(0);" onClick="if(this.innerHTML=='Add Country'){
+														document.getElementById('frm').style.display='block';
+														this.innerHTML='Cancle'
+														}
+													else{
+														document.getElementById('frm').style.display='none';
+														this.innerHTML='Add Country';
+														}" >Add Country</a><br><br>
+				<div class="width-99pct" id='frm' style="display:none;"> 
+					<table>
+				<tr>
+					<td valign="top"><label>Country :</label></td>
+					<td valign="top"><input class="textfield" type="text" name="country" maxlength="255" style="width:200px;" ></td>
+				</tr>
+				<tr>
+					<td >&nbsp;</td>
+					<td ><input type="submit" name="submit" value="Submit" ></td>
+				</tr>
+				</table>
+				
+				   </div> 
+		  <div>
+		  <?php
+			 if(isset($_POST['submit']))
+				{
+				$sql="INSERT INTO country(country_name) VALUES('$_POST[country]')";
+			   	//if(trim($_POST['type'])!='')
+				 mysql_query($sql);
+				}
+				 
+				?>
+		  <table width="50%" >
+			<tr><td><h4>Id</h4></td><td><h4>Country Name</h4></td></tr>
+			 <?php
+			 $sql="select a.*,b.type as artist_type from genre a, artist_type b where a.type=b.id order by a.genre_id asc";
+			 $sql="select * from country order by country_id asc";	
+			 $result = mysql_query($sql);
+ 		 	 while($row=mysql_fetch_array($result))
+			{	
+			?>
+			<tr>
+			<?php //$id=$row['id'];?>
+			<td width="25%"><?php echo $row['country_id']; ?></td>
+			<td width="25%"><?php echo $row['country_name']; ?></td>
+			</tr>
+		  <?php }
+		  ?>
+		  </table>		
+	
+				</div> 
+			</div> 
+			</form> 
+		</div> 
+    <?php require ("tpl/inc/footer.php"); ?> 
+  </div> 
+</div> 
+<script>
+$(function(){
+	remover();
+	$('#add_row').click(function(){
+		$('.this').removeClass('this');
+		$tr=$('.add').clone();
+		var tr='<tr class="empty"><td>&nbsp;</td></tr><tr class="additional this">'+$tr.html()+'</tr>';
+		$('#featured_properties').append(tr);
+		$('.this').find('select option').removeAttr('selected');
+		$('.this').find('input:text').val('');
+		remover();
+	});
+});
+function remover(){
+	$('#featured_properties a').click(function(){
+		if($('#featured_properties .additional').size()<=1) return false;
+		$(this).parents('.additional').remove();
+	});
+}
+</script>
+</body>
+</html>

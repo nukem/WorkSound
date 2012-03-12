@@ -1,0 +1,11 @@
+.larger-text {
+	font-size: 14px;
+}
+
+.yellow-text {
+	color: #ff0;
+}
+
+.no-bottom-border {
+	border-bottom: none;
+}

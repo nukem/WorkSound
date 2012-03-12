@@ -1,0 +1,45 @@
+request to change
+
+Hi,
+You have successfully created a Soundbooka account.
+Please carefully note your login email and password. You can use these to login on any web page of the Soundbooka web site.
+If you have forgotten your password then please use the forgotten password feature when you try to login.
+The Soundbooka Team
+
+
+old template
+--------------
+
+Hello %Profile name%
+
+Welcome to Soundbooka!
+
+This email is to inform you that your new Soundbooka account has been created.
+You will need the following information to Login to your account and manage your profile.
+
+%Create my profile%
+
+We appreciate your support and we are always open to your suggestions and feedback.
+
+For help with any of our services, please email: info@soundbooka.com
+
+Thanks!
+
+The Soundbooka Team.
+
+
+replaced
+---------
+
+Hi %Profile name%,
+
+You have successfully created a Soundbooka account.
+
+Please carefully note your login email and password. You can use these to login on any web page of the Soundbooka web site.
+
+%Create my profile%
+
+If you have forgotten your password then please use the forgotten password feature when you try to login.
+
+Thanks!
+The Soundbooka Team

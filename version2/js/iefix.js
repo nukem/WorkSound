@@ -1,0 +1,1 @@
+DD_belatedPNG.fix('div,img,a,li,span,blockquote,p,input,label,ul,em, h1, h2, h3, h4');

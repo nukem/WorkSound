@@ -1,0 +1,32 @@
+
+body {
+	padding:30px 0;
+	
+	font-family:Arial,Verdana,Sans-serif;
+}
+#wrapper {
+	text-align: left;
+	width:800px;
+	margin:0 auto;
+}
+.tbl_repeat {
+	width:100%;
+}
+.tbl_repeat th,.tbl_repeat td {
+	padding:5px 10px;
+}
+.tbl_repeat th {
+	background:#eee;
+	border-top: solid 1px #aaa;
+	border-bottom: solid 1px #aaa;
+}
+.tbl_repeat td {
+	border-bottom: dashed 1px #aaa;
+}
+
+#tb_repeat tr:hover{
+  background-color:#f1f1f1; 
+ }
+ #tb_repeat tr td{
+  	padding : 4px 0px; 
+ }
