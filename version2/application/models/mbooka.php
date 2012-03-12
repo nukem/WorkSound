@@ -11,6 +11,31 @@ class mBooka extends CI_Model {
   function __construct() {
     parent::__construct();
   }
+  
+	//beecart francis 3/12/2012
+    function get_list()
+    {
+    	$result = array('0' => 'All Bookers');
+    	$data = $this->db->get('booka');
+    	foreach($data->result_array() as $item)
+    	{
+    		$result[$item['id']] = $item['firstname'] . ' ' . $item['lastname'];
+    	}
+    	return $result;
+    }
+
+	function get_artist_list()
+	{
+    	$result = array('0' => 'All Artists');
+    	$data = $this->db->get('artist');
+    	foreach($data->result_array() as $item)
+    	{
+    		$result[$item['id']] = $item['profile_name'];
+    	}
+    	return $result;
+	}
+    //end beecart    
+    
 	// Date: 30 Nov'11 EM code starts here
   function savevent($form_data) {
   	$newId = 0;

@@ -305,7 +305,7 @@ if(!isset($_GET['bid'])){
 									<td><br />
 										<input type="hidden" name="is_admin" value="0" />
 										<input type="checkbox" name="is_admin" id="is_admin" value="1" <?php echo (empty($booka_data['is_admin']))?'':'checked="checked"';?>/>
-										<label for="is_admin" style="font-weight:normal;color:#000;font-size:100%;">Set Administrator Flag</label>
+										<label for="is_admin" style="font-weight:normal;color:#000;font-size:100%;">Set Admin</label>
 									</td>
 								</tr>
 								<!--  beecar francis 3/12/2012 -->

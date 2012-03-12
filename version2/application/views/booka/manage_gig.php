@@ -40,7 +40,101 @@ function fn(){
 		
 	});
 }
-</script>	
+</script>
+
+<?php if ($is_admin) {?>
+	<form action="" method="post" class="uniform">
+	<table style="width:100%">
+		<tr>
+			<td>
+				<label>Booker:</label><br />
+				<div class="simu_select5">
+				<?php echo form_dropdown('booker_id', $booker_list, set_value('booker_id', @$booker_id));?>
+				</div>			
+			</td>
+
+			<td>
+				<label>Artists:</label><br />
+				<div class="simu_select5">
+				<?php echo form_dropdown('artist_id', $artist_list, set_value('artist_id', @$artist_id));?>
+				</div>
+			</td>
+			<td>
+				<label>Gigs&nbsp;</label><br />
+				<div class="simu_select5">
+				<?php
+				extract($_POST);
+				?>
+				<input name="cur_date" type="hidden" value="<?php echo date("d/m/Y");?>" />
+				<input name="past_date" type="hidden" value="<?php echo date("d/m/Y",strtotime("yesterday"));?>" />
+				<?php 
+				if(isset($_POST) && !empty($_POST)){
+				}
+				else{
+					$select = 1;
+					$start_date = date('d/m/Y');
+				}?>
+				<select name="gig" style="opacity: 0;"  onchange="if(this.value==1) {
+																	this.form.start_date.value = this.form.cur_date.value; 
+																	this.form.end_date.value = '';
+																	}
+																else if(this.value==2) {
+																	this.form.end_date.value = this.form.past_date.value;
+																	this.form.start_date.value ='';
+																	}
+																else {
+																	this.form.start_date.value ='';
+																	this.form.end_date.value ='';
+																}">
+                <option value="0" <?php  if($_REQUEST['gig']==0){ echo "selected"; } ?> >All Gig</option>
+				<option value="1" <?php  if($_REQUEST['gig']==1 || $select == 1){ echo "selected"; } ?> >Current Gig</option>
+				<option value="2" <?php  if($_REQUEST['gig']==2){ echo "selected"; } ?> >Past Gig</option>				 
+				</select>
+				</div>
+			</td>
+			<td>
+				<label>Date From&nbsp;</label><br />
+				<div><input name="start_date" type="text" class="input7 datepick" id="startDate" value="<?php echo set_value('start_date',@$start_date); ?>" /></div>
+			</td>
+			<td>
+				<label>Date To&nbsp;</label><br />
+				<div id="end" ><input name="end_date" type="text" class="input7 datepick" id="endDate" value="<?php echo set_value('end_date',@$end_date); ?>"/></div>
+				<script>
+				$( "#startDate" ).datepicker({dateFormat: 'dd/mm/yy'});
+				$( "#endDate" ).datepicker({dateFormat: 'dd/mm/yy'});
+					$( "#startDate" ).change(function(){
+						test = $(this).datepicker('getDate');
+						testm = new Date(test.getTime());
+						testm.setDate(testm.getDate());
+						$('#end').html('<input name="end_date" type="text" class="input7 datepick" id="endDate" />');
+						$( "#endDate" ).datepicker({dateFormat: 'dd/mm/yy',minDate:testm});
+					});
+				</script>
+			</td>
+			<td>
+				<label>Status&nbsp;</label><br />
+				<div class="simu_select5">
+				<?php
+				$status_options = array(
+                  ''  => 'All',
+                  'Draft'    => 'Draft',
+                  'Offer'   => 'Offer',
+				  'Accept'   => 'Accept',
+				  'Reject'   => 'Reject',
+				  'Payments'   => 'Payments'
+                );
+				?>
+				<?=form_dropdown('status',$status_options,set_value('status',@$status))?>
+				</div>
+			</td>
+			<td>&nbsp;<input type="submit" name="go" class="input_continue" value="Go" style="background-image:none; width:40px;" /></td>
+		</tr>
+	</table>
+	</form>
+	<p>&nbsp;</p>
+
+<?php } else { ?>
+
 	<form action="" method="post" class="uniform">
 	<table>
 		<tr>
@@ -121,6 +215,9 @@ function fn(){
 		</tr>
 	</table>
 	</form>
+<?php } ?>
+
+
 	<div class="form_title">
 	
 	<?php

@@ -1,5 +1,5 @@
 <?php
-error_reporting("0");
+error_reporting(E_ALL);
 if (!defined('BASEPATH'))
   exit('No direct script access allowed');
 
@@ -558,27 +558,60 @@ class Booka extends MY_Controller {
 		}
 	  }
 	
-	function manage_gig($id){
-	echo '<pre>';print_r($_SESSION);print_r($this->session->all_userdata());die();
-	if (!$id) {
-	  $this->session->set_flashdata('error', 'You have to resigter first.');
-	  redirect('/booka/register');
-	}
-	 $data = array(
-		  'title' => 'Manage Gigs',
-		  'main_content' => 'booka/manage_gig'
-	  );
-	if(isset($_POST) && !empty($_POST)){
-	$sql_gig = "SELECT * FROM manage_gigs WHERE booka_id='{$id}'";
+	function manage_gig($id)
+	{
+		if (!$id) {
+		  $this->session->set_flashdata('error', 'You have to resigter first.');
+		  redirect('/booka/register');
+		}
+		 $data = array(
+			  'title' => 'Manage Gigs',
+			  'main_content' => 'booka/manage_gig'
+		  );
+		  
+
+	//beecart francis 3/12/2012
+	$data['is_admin'] = $this->session->userdata('is_admin');
+	$data['booker_list'] = $this->mBooka->get_list();
+	$data['artist_list'] = $this->mBooka->get_artist_list();
+
+	$artist_id = 0;
+	if(isset($_POST) && !empty($_POST))
+	{
+		$artist_id = intval($_POST['artist_id']);
+		if(!empty($_POST['booker_id']))
+		{
+			$id = intval($_POST['booker_id']);
+			$sql_gig = "SELECT * FROM manage_gigs WHERE booka_id='{$id}' ";
+		} else {
+			if($data['is_admin'])
+			{
+				$id = 0;
+				$sql_gig = "SELECT * FROM manage_gigs ";
+			} else {
+				$sql_gig = "SELECT * FROM manage_gigs WHERE booka_id='{$id}' ";
+			}
+		}
+		
 	}else{
-	$stdate = date('Y-m-d');
-	$sql_gig = "SELECT * FROM manage_gigs WHERE booka_id='{$id}' and start_date >= '{$stdate}'";
+		$stdate = date('Y-m-d');
+		$sql_gig = "SELECT * FROM manage_gigs WHERE booka_id='{$id}' and start_date >= '{$stdate}' ";
 	}
+
+
+	$data['booker_id'] = $id;
+	$data['artist_id'] = $artist_id;
+	
+	
 	extract($_POST);
 	if(isset($start_date) and trim($start_date)!='') {
 		$sd = explode("/",$start_date);
 		$sdate = "$sd[2]-$sd[1]-$sd[0]";
-          $sql_gig .= "and   start_date >= '{$sdate}'";
+		if(empty($id)) {
+			$sql_gig .= "WHERE start_date >= '{$sdate}' ";
+		} else {
+			$sql_gig .= "and   start_date >= '{$sdate}' ";
+		}
 	}
 	 
 	if(isset($end_date) and trim($end_date)!='') {
@@ -587,23 +620,31 @@ class Booka extends MY_Controller {
         $sql_gig .= "and end_date <='{$edate}'";
 	}   
 	
-	//echo $sql_gig;
-    echo '<div style="display:none;">';
-   // echo $sql_gig;
-    echo '</div>';
+
 	$r = $this->db->query($sql_gig);
-	
 	
 	
 	$data['gigs']=$r->result_array();
 	$bid=array(0);
 	if(count($data['gigs'])>0) foreach($data['gigs'] as $v) $bid[]=$v['gig_id'];
 	$bid=implode(',',$bid);
-	//print_r($_POST); 
-	$sql= "SELECT *, ag.id AS agid, a.id AS aid FROM artist_gig_map ag
+
+	//artist filter 
+	if (empty($artist_id))
+	{
+		$sql= "SELECT *, ag.id AS agid, a.id AS aid FROM artist_gig_map ag
 							LEFT JOIN artist a ON ag.artist_id=a.id
 							LEFT JOIN artist_type at ON at.artist_id=a.profile_type
 							WHERE ag.gig_id IN ({$bid}) ";
+	} else {
+		$sql= "SELECT *, ag.id AS agid, a.id AS aid FROM artist_gig_map ag
+							LEFT JOIN artist a ON ag.artist_id=a.id
+							LEFT JOIN artist_type at ON at.artist_id=a.profile_type
+							WHERE a.id = {$artist_id}  
+							AND ag.gig_id IN ({$bid}) ";
+	}
+
+
 	if(isset($status)) {
 		if($status=='Draft') $sql .= "and (ag.respond_status = '' or ag.respond_status like  'Draft') ";
 		else if($status=='Payments') $sql .= "and ag.respond_status like  'Deposit Paid' ";
@@ -616,16 +657,12 @@ class Booka extends MY_Controller {
 	}
 	*/
 	
-	
 	$sql .= " ORDER BY position" ; 
-    echo '<div style="display:none;">';
-    //echo $sql;
-    echo '</div>';
 	
 	$q = $this->db->query($sql);
 	
 	$map_artists=$q->result_array();
-//print_r($map_artists);
+
 	if(count($map_artists)>0) {
 		foreach($map_artists as $val){
 			$data['map_artists'][$val['gig_id']][$val['agid']]['profile_name']=$val['profile_name'];
@@ -701,13 +738,24 @@ class Booka extends MY_Controller {
 			$data['gig_test'][$val['gig_id']]=1;
 		}	
 	}
-	
+
+	//removes gig where the filtered artists dont exists
+	if (!empty($data['is_admin']) && !empty($data['artist_id']))
+	{
+		while(list($key, $value) = each($data['gigs']))
+		{
+			if(empty($data['map_artists'][$value['gig_id']]))
+			{
+				unset($data['gigs'][$key]);
+			}
+		}
+	}
+
 	$data['id']=$id;
-    echo '<div style="display:none;">';
-    //print_r($data);    
-    echo '</div>';
 	$this->load->view('template', $data);
-	} 
+	}
+	
+	
   function check_profile($email){
 	if($email=='') { return false; }
 	$other_profiles=$this->mBooka->other_profile($email);	  
